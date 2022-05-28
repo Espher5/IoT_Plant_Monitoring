@@ -1,10 +1,10 @@
 <template>
     <div class="sensor-graph">
         <h1>Plant monitoring system</h1>
-        <h2>Evolution of values for {{ test }}</h2>
+        <h2>Evolution of values for {{ topic }}</h2>
         <p>Here you can access the graphs highlighting the evolution of the sensoor measurements over time</p>
 
-        <p>{{info}}</p>
+        <p>{{ info }}</p>
 
         <Bar
             :chart-options="chartOptions"
@@ -20,6 +20,7 @@
     </div>
 </template>
 
+
 <script>
 import axios from 'axios';
 import { Bar } from 'vue-chartjs';
@@ -31,41 +32,41 @@ export default {
     name: 'senor-graph',
     components: { Bar },
     props: {
-    test : {
-        type: String,
-        default: '/iot/water'
+        topic : {
+            type: String,
+            default: '/iot/water'
+        },
+        chartId: {
+            type: String,
+            default: 'bar-chart'
+        },
+        datasetIdKey: {
+            type: String,
+            default: 'label'
+        },
+        width: {
+            type: Number,
+            default: 400
+        },
+        height: {
+            type: Number,
+            default: 400
+        },
+        cssClasses: {
+            default: '',
+            type: String
+        },
+        styles: {
+            type: Object,
+            default: () => {}
+        },
+        plugins: {
+            type: Object,
+            default: () => {}
+        }
     },
-    chartId: {
-        type: String,
-        default: 'bar-chart'
-    },
-    datasetIdKey: {
-        type: String,
-        default: 'label'
-    },
-    width: {
-        type: Number,
-        default: 400
-    },
-    height: {
-        type: Number,
-        default: 400
-    },
-    cssClasses: {
-        default: '',
-        type: String
-    },
-    styles: {
-        type: Object,
-        default: () => {}
-    },
-    plugins: {
-        type: Object,
-        default: () => {}
-    }
-  },
 
-  data() {
+    data() {
         return {
             chartData: {
                 labels: ['January', 'February', 'March'],
@@ -77,17 +78,32 @@ export default {
             response: null
         }
     },
+    
+    methods: {
+        fetchData(topic) {
+            this.fetchInterval = setInterval(() => {
+                axios.get('http://localhost:3000/api', {
+                    params: { topic: topic }
+                }).then(response => {
+                    this.info = response;
+                    console.log(response);
+                }).catch(err => {
+                    console.log(err);
+                });
+            }, 3000);            
+        }
+    },
 
-    mounted() {
-        axios.get('http://localhost:3000/api').then(response => {
-            this.info = response;
-            console.log(response);
-        }).catch(err => {
-            console.log(err);
-        });
+    created() {
+        this.fetchData();
+    },
+
+    beforeUnmount() {
+        clearInterval(this.fetchInterval);
     }
 }
 </script>
+
 
 <style scoped>
 

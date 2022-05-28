@@ -1,9 +1,9 @@
 <template>
-  <sensor-graph test="/iot/light"/>
+  <sensor-graph />
 </template>
 
 <script>
-import SensorGraph from './components/sensor-graph.vue'
+import SensorGraph from './components/sensor-graph.vue';
 
 export default {
   name: 'App',

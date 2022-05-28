@@ -1,5 +1,5 @@
 <template>
-  <sensor-graph />
+  <sensor-graph test="/iot/light"/>
 </template>
 
 <script>

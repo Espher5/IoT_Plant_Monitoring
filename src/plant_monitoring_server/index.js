@@ -10,9 +10,13 @@ mqttManager.initMQTT();
 
 
 app.get('/', (req, res) => {
-    console.log(mqttManager.getMessages('/iot/water'));
     res.send('Hello');
 });
+
+app.get('/api', (req, res) => {
+    var messages = mqttManager.getMessages('/iot/water');
+    res.json(messages);
+}); 
 
 app.listen(SERVER_PORT, (err) => {
     if(err) {

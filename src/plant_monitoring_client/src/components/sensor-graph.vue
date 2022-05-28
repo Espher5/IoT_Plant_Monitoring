@@ -1,7 +1,10 @@
 <template>
     <div class="sensor-graph">
         <h1>Plant monitoring system</h1>
+        <h2>Evolution of values for {{ test }}</h2>
         <p>Here you can access the graphs highlighting the evolution of the sensoor measurements over time</p>
+
+        <p>{{info}}</p>
 
         <Bar
             :chart-options="chartOptions"
@@ -18,6 +21,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { Bar } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
 
@@ -27,6 +31,10 @@ export default {
     name: 'senor-graph',
     components: { Bar },
     props: {
+    test : {
+        type: String,
+        default: '/iot/water'
+    },
     chartId: {
         type: String,
         default: 'bar-chart'
@@ -65,8 +73,18 @@ export default {
             },
             chartOptions: {
                 responsive: true
-            }
+            },
+            response: null
         }
+    },
+
+    mounted() {
+        axios.get('http://localhost:3000/api').then(response => {
+            this.info = response;
+            console.log(response);
+        }).catch(err => {
+            console.log(err);
+        });
     }
 }
 </script>

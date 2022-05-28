@@ -1,11 +1,14 @@
 <template>
-    <button>{{label}}</button>
+    <div class = "data-button">
+        <button>{{ buttonLabel }}</button>
+    </div>
+    
 </template>
 
 <script>
 export default {
     props: {
-        label: {
+        buttonLabel: {
             type: String,
             default: 'Button'
         },

@@ -1,14 +1,18 @@
 <template>
-  <sensor-graph />
+  <app-header />
+  <app-main />
+  <router-view />
 </template>
 
 <script>
-import SensorGraph from './components/sensor-graph.vue';
+import AppHeader from './components/app-header.vue';
+import AppMain from './components/app-main.vue';
 
 export default {
   name: 'App',
   components: {
-    SensorGraph
+    AppHeader,
+    AppMain
   }
 }
 </script>

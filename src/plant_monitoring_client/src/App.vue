@@ -1,14 +1,14 @@
 <template>
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <sensor-graph />
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import SensorGraph from './components/sensor-graph.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    SensorGraph
   }
 }
 </script>

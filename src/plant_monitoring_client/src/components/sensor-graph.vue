@@ -1,7 +1,7 @@
 <template>
     <div class="sensor-graph">
-        <h1>Plant monitoring system</h1>
-        <h2>Evolution of values for {{ topic }}</h2>
+        
+        <h2>Evolution of values for {{ name }}</h2>
         <p>Here you can access the graphs highlighting the evolution of the sensoor measurements over time</p>
 
         <p>{{ info }}</p>
@@ -14,8 +14,8 @@
             :plugins="plugins"
             :css-classes="cssClasses"
             :styles="styles"
-            :width="width"
-            :height="height"
+            :width="100"
+            :height="50"
         />
     </div>
 </template>
@@ -36,6 +36,11 @@ export default {
             type: String,
             default: '/iot/water'
         },
+        name : {
+            type: String,
+            default: 'data'
+        },
+
         chartId: {
             type: String,
             default: 'bar-chart'
@@ -106,5 +111,7 @@ export default {
 
 
 <style scoped>
-
+.sensor-graph {
+    margin-bottom: 300px;
+}
 </style>

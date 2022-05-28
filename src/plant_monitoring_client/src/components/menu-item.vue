@@ -1,8 +1,7 @@
 <template>
     <div class = "data-button">
-        <button>{{ buttonLabel }}</button>
+        <button @click="test">{{ buttonLabel }}</button>
     </div>
-    
 </template>
 
 <script>
@@ -15,6 +14,12 @@ export default {
         topic: {
             type: String,
             default: ''
+        }
+    },
+
+    methods: {
+        test() {
+            document.getElementById('chart-area').style.display = 'block';
         }
     }
 }

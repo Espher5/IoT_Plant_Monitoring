@@ -1,10 +1,7 @@
 <template>
-    <div class="sensor-graph">
-        
+    <div class="sensor-graph">      
         <h2>Evolution of values for {{ name }}</h2>
         <p>Here you can access the graphs highlighting the evolution of the sensoor measurements over time</p>
-
-        <p>{{ info }}</p>
 
         <Bar
             :chart-options="chartOptions"
@@ -87,11 +84,9 @@ export default {
     methods: {
         fetchData(topic) {
             this.fetchInterval = setInterval(() => {
-                axios.get('http://localhost:3000/api', {
-                    params: { topic: topic }
-                }).then(response => {
-                    this.info = response;
-                    console.log(response);
+                axios.get('http://localhost:3000/api?topic=' + topic).then(response => {
+                    this.response = response;
+                    console.log(this.response);
                 }).catch(err => {
                     console.log(err);
                 });
@@ -100,7 +95,7 @@ export default {
     },
 
     created() {
-        this.fetchData();
+        this.fetchData(this.topic);
     },
 
     beforeUnmount() {

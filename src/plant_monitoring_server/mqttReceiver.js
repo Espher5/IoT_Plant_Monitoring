@@ -21,7 +21,8 @@ var topics = {
     '/iot/water' : [],
     '/iot/moisture': [],
     '/iot/light': [],
-    '/iot/temperature': []
+    '/iot/temperature': [],
+    '/iot/humidity': []
 }
 
 

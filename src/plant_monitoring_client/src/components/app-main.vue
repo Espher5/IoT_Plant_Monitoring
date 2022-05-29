@@ -18,8 +18,6 @@ export default {
             type: Array,
             default: null
         }
-    },
-
-
+    }
 }
 </script>

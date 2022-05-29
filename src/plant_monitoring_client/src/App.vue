@@ -16,11 +16,44 @@ export default {
     },
     data() {
         const items = ref([
-            {topic: '/iot/moisture', name: 'moisture'},
-            {topic: '/iot/water', name: 'water level'},
-            {topic: '/iot/light', name: 'light level'}, 
-            {topic: '/iot/temperature', name: 'air temperature'},
-            {topic: '/iot/humidity', name: 'air humidity'}
+            {
+                topic: '/iot/moisture',
+                name: 'moisture',
+                properties: {
+                    min: 0,
+                    max: 100
+                }
+            },
+            {
+                topic: '/iot/water', 
+                name: 'water level',
+                properties: {
+                    min: 0,
+                    max: 100
+                }
+            },
+            {
+                topic: '/iot/light', 
+                name: 'light level',
+                properties: {
+
+                }
+            }, 
+            {
+                topic: '/iot/temperature', 
+                name: 'air temperature',
+                properties: {
+
+                }
+            },
+            {
+                topic: '/iot/humidity', 
+                name: 'air humidity',
+                properties: {
+                    min: 0,
+                    max:100
+                }
+            }
         ]);
 
         return {

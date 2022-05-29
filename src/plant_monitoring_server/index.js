@@ -28,7 +28,8 @@ app.get('/api', (req, res) => {
     }
 
     console.log('Received request for messages in topic', topic);
-    var messages = mqttManager.getMessages('/iot/water');
+    console.log('Data:', mqttManager.getMessages(topic));
+    var messages = mqttManager.getMessages(topic);
     res.json(messages);
 }); 
 

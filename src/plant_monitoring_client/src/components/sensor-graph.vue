@@ -1,33 +1,28 @@
 <template>
     <div class="sensor-graph">      
         <h2>Evolution of values for {{ name }}</h2>
-        <p>Here you can access the graphs highlighting the evolution of the sensoor measurements over time</p>
 
-        <Bar
-            :chart-options="chartOptions"
-            :chart-data="chartData"
-            :chart-id="chartId"
-            :dataset-id-key="datasetIdKey"
-            :plugins="plugins"
-            :css-classes="cssClasses"
-            :styles="styles"
-            :width="100"
-            :height="50"
-        />
+        <apexchart
+            :type="line"
+            :options="chartOptions"
+            :series="series">
+        </apexchart>
+    <button @click="updateChart">Update!</button>
     </div>
 </template>
 
 
 <script>
 import axios from 'axios';
-import { Bar } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js';
+import VueApexCharts from "vue3-apexcharts";
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
 export default {
     name: 'senor-graph',
-    components: { Bar },
+    components: { 
+        apexchart: VueApexCharts
+    },
+
     props: {
         topic : {
             type: String,
@@ -37,61 +32,45 @@ export default {
             type: String,
             default: 'data'
         },
-
-        chartId: {
-            type: String,
-            default: 'bar-chart'
-        },
-        datasetIdKey: {
-            type: String,
-            default: 'label'
-        },
-        width: {
-            type: Number,
-            default: 400
-        },
-        height: {
-            type: Number,
-            default: 400
-        },
-        cssClasses: {
-            default: '',
-            type: String
-        },
-        styles: {
-            type: Object,
-            default: () => {}
-        },
-        plugins: {
-            type: Object,
-            default: () => {}
-        }
     },
 
-    data() {
+    data: function() {
         return {
-            chartData: {
-                labels: ['January', 'February', 'March'],
-                datasets: [{data: [40, 20, 12]}]
-            },
+            type: 'line',
             chartOptions: {
-                responsive: true
+                chart: {
+                    id: 'vuechart'
+                },
             },
-            response: null
-        }
+            series: [
+                {
+                    name:this.name,
+                    data: [],
+                },
+            ],
+            colors: [
+                '#008FFB',
+                '#00E396',
+                '#FEB019',
+                '#FF4560',
+                '#775DD0'
+            ]
+        };
     },
     
     methods: {
+        // Updates the MQTT data from the server every 10 seconds
         fetchData(topic) {
             this.fetchInterval = setInterval(() => {
                 axios.get('http://localhost:3000/api?topic=' + topic).then(response => {
-                    this.response = response;
-                    console.log(this.response);
+                    this.series[0].data = response.data;
+
+                    console.log(response);
                 }).catch(err => {
                     console.log(err);
                 });
-            }, 3000);            
-        }
+            }, 1000);            
+        },
     },
 
     created() {

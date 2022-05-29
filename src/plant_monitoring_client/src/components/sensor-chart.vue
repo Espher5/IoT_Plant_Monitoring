@@ -7,7 +7,7 @@
             :options="chartOptions"
             :series="series">
         </apexchart>
-    <button @click="updateChart">Update!</button>
+    <button ref="freezeButton" @click="freezeChart">Freeze chart</button>
     </div>
 </template>
 
@@ -18,7 +18,7 @@ import VueApexCharts from "vue3-apexcharts";
 
 
 export default {
-    name: 'senor-graph',
+    name: 'sensor-chart',
     components: { 
         apexchart: VueApexCharts
     },
@@ -30,17 +30,19 @@ export default {
         },
         name : {
             type: String,
-            default: 'data'
+            default: 'Sensor'
         },
     },
 
     data: function() {
         return {
             type: 'line',
+            frozen: false,
             chartOptions: {
                 chart: {
                     id: 'vuechart'
                 },
+                color: '#FEB019'
             },
             series: [
                 {
@@ -59,18 +61,25 @@ export default {
     },
     
     methods: {
-        // Updates the MQTT data from the server every 10 seconds
+        // Updates the MQTT data from the server every 3 seconds
         fetchData(topic) {
             this.fetchInterval = setInterval(() => {
                 axios.get('http://localhost:3000/api?topic=' + topic).then(response => {
-                    this.series[0].data = response.data;
-
+                    if(!this.frozen) {
+                        this.series[0].data = response.data;
+                    }
+                    
                     console.log(response);
                 }).catch(err => {
                     console.log(err);
                 });
-            }, 1000);            
+            }, 3000);            
         },
+
+        freezeChart() {
+            this.$refs.freezeButton.innerText = this.frozen ? 'Freeze chart' : 'Unfreeze chart';
+            this.frozen = !this.frozen;
+        }
     },
 
     created() {

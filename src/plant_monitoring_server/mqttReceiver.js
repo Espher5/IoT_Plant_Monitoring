@@ -16,13 +16,32 @@ const client = mqtt.connect(connectUrl, {
 });
 
 
-// Topic name - messages pair dictionary
 var topics = {
-    '/iot/water' : [],
-    '/iot/moisture': [],
-    '/iot/light': [],
-    '/iot/temperature': [],
-    '/iot/humidity': []
+    '/iot/water' : {
+        messages: [],
+        minValue: 0,
+        maxValue: 100
+    },
+    '/iot/moisture': {
+        messages: [],
+        minValue: 0,
+        maxValue: 100
+    },
+    '/iot/light': {
+        messages: [],
+        minValue: 0,
+        maxValue: 4096
+    },
+    '/iot/temperature': {
+        messages: [],
+        minValue: -40,
+        maxValue: 125
+    },
+    '/iot/humidity': {
+        messages: [],
+        minValue: 0,
+        maxValue: 100
+    }
 }
 
 
@@ -41,9 +60,12 @@ function initMQTT() {
 
     client.on('message', (topic, payload) => {
         var message = payload.toString()
-        console.log('Received message:', topic, message);
-
-        topics[topic].push(message);
+        console.log('Received message "', message, '" from topic', topic);
+      
+        var controlString = processMessage(topic, message);
+        console.log(controlString);
+        topics[topic].messages.push(message);
+        console.log(topics[topic].messages);
     });
 }
 
@@ -58,6 +80,39 @@ function getMessages(topic) {
     return topics[topic];
 }
 
+
+function processMessage(topic, message) {
+    var topicData = topics[topic];
+    console.log(topicData);
+    if(message < topicData.minValue || message > topicData.maxValue) {
+        return 'Data out of allowed range';
+    }
+    if(!typeof(message) === 'number') {
+        return 'Invalid data type for message';
+    }
+
+    switch(topic) {
+        case '/iot/water':
+            if(message < 15) {
+                return 'Warning, water supply is running low, please refill as soon as you can.';
+            }
+            break;
+        
+        case '/iot/moisture':
+            if(message < 30) {
+                return 'Warning, low moisture detected in soil. Please check water supplies and pump status.';
+            }
+            break;
+        case '/iot/light':
+            break;
+        case '/iot/light':
+            break;
+        case '/iot/light':
+            break;
+        default:
+            return;
+    }
+}
 
 module.exports = {
     initMQTT,

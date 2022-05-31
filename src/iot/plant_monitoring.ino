@@ -16,9 +16,18 @@
 #define DIRA 26
 #define DIRB 27
 
+// Water level sensor
+#define WATER_POWER_PIN  16
+#define WATER_SIGNAL_PIN 34
+
+// Soil Moisture sensor
+#define SOIL_MOISTURE_PIN A0 // SP on ESP32
+
 // Light and air temperature/humidity sensors
 #define LIGHT_PIN 32
 #define DHT_PIN 
+
+// Button
 
 
 const char *SSID = "";
@@ -80,11 +89,29 @@ void setup() {
 	Serial.begin(115200);
     connectToWiFi();
     setupMQTT();
+    pinMode(WATER_POWER_PIN, OUTPUT);
 }
 
 
 void loop() {
     // Collect the sensor measurements
+    int waterLevel, waterLevelPercentage;
+    int moistureLevel, moistureLevelPercentage;
+
+    // Water level sensor 
+    digitalWrite(WATER_POWER_PIN, HIGH);
+    delay(10); 
+    waterLevel = analogRead(WATER_SIGNAL_PIN);
+    waterLevelPercentage = map(waterLevel, 0, 4096, 0, 100);
+    digitalWrite(WATER_POWER_PIN, LOW);
+
+    // Moisture level sensor
+    // ~ -300 (empty) to  -100 (full)
+    moistureLevel = ( 100.00 - ( (analogRead(SOIL_MOISTURE_PIN) / 1023.00) * 100.00 ) );
+    moisturePercentage = map(moistureLevel, -300, -100, 0, 100);
+
+    // Light level sensor
+
 
 
     // Send MQTT messages

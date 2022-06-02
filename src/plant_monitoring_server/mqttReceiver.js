@@ -3,14 +3,14 @@ const mqtt = require('mqtt');
 
 const host = process.env.MQTT_BROKER;
 const port  = process.env.MQTT_PORT;
-const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
-const connectUrl = `mqtt://${host}:${port}`
+const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
+const connectUrl = `mqtt://${host}:${port}`;
 
 const client = mqtt.connect(connectUrl, {
     clientId,
     clean: true,
     connectTimeout: 4000,
-    username: 'emqx',
+    username: 'IotLab',
     password: 'public',
     reconnectPeriod: 1000
 });
@@ -110,7 +110,7 @@ function processMessage(topic, message) {
         case '/iot/light':
             break;
         default:
-            return;
+            return '';
     }
 }
 

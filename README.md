@@ -6,4 +6,7 @@ These measurements are published as MQTT messages after some initial processing.
 Finally, a web server built with NodeJS and Express subscribes to these topics and sends the collected data to a client application made with Vue.js, which displays these measurements to the user with real-time charts.
 
 
-The architecture of the system is the following
+The architecture of the system is the following:
+<p align="center">
+    <img src="./assets/architecture.png", alt="architecture" />
+</p>

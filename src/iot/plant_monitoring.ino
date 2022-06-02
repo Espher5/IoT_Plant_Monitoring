@@ -21,7 +21,7 @@
 #define WATER_SIGNAL_PIN 34
 
 // Soil Moisture sensor
-#define SOIL_MOISTURE_PIN A0 // SP on ESP32
+#define SOIL_MOISTURE_PIN A0 // SP pin on ESP32
 
 // Light and air temperature/humidity sensors
 #define LIGHT_PIN 32

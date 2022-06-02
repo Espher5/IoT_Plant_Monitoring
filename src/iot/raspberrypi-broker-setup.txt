@@ -1,0 +1,15 @@
+
+
+
+0 - Add "video=HDMI-A-1:1920x1080@60D" to the end of cmdline.txt in the boot folder of the Rpi
+1 - Connect Rpi to hotspot
+2 - nmap -sn xxx.xxx.x.0/24 to find Rpi's IP
+3 - ssh pi@'IP'
+4 - Enable VNC on RPi
+5 - Connect via VNC
+6 - Run "sudo apt-get update" and "sudo apt-get upgrade"
+7 - Install mosquitto broker
+8 - Add the following lines to mosquitto.conf to allow external connections:
+    listener 1883 0.0.0.0
+    allow_anonymous true
+9 - Run sudo mosquitto -c mosquitto.conf inside of the mosquitto folder

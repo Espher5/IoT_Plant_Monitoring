@@ -18,7 +18,7 @@ export default {
         const items = ref([
             {
                 topic: '/iot/moisture',
-                name: 'moisture',
+                name: 'soil moisture',
                 properties: {
                     min: 0,
                     max: 100

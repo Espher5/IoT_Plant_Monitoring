@@ -1,6 +1,6 @@
 <template>
     <div class="sensor-graph">      
-        <h2>Evolution of values for {{ name }}</h2>
+        <h2>Real-time chart for the measurements of the {{ name }} sensor</h2>
 
         <apexchart
             :type="line"

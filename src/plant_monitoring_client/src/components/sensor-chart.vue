@@ -46,7 +46,7 @@ export default {
             },
             series: [
                 {
-                    name:this.name,
+                    name: this.name,
                     data: [],
                 },
             ],
@@ -66,14 +66,14 @@ export default {
             this.fetchInterval = setInterval(() => {
                 axios.get('http://localhost:3000/api?topic=' + topic).then(response => {
                     if(!this.frozen) {
-                        this.series[0].data = response.data;
+                        this.series[0].data = response.data.messages;
                     }
                     
-                    console.log(response);
+                    console.log(response.data.messages);
                 }).catch(err => {
                     console.log(err);
                 });
-            }, 3000);            
+            }, 10000);            
         },
 
         freezeChart() {

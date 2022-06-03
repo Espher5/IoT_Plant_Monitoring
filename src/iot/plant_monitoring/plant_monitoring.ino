@@ -3,8 +3,8 @@
 #include <WiFi.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <DHT.h>
-#include "arduino_secrets.h"
+//#include <DHT.h>
+//#include "arduino_secrets.h"
 
 
 // OLED display 
@@ -33,15 +33,14 @@
 // Button
 
 
-const char *SSID = "";
-const char *PWD = "";
-const char *MQTT_BROKER = "";
+
+const char *SSID = "IotLab";
+const char *PWD = "vmum7999";
+const char *MQTT_BROKER = "192.168.193.165";
 const int MQTT_PORT = 1883;
 
 WiFiClient wifiClient;
-PubSubClient mqttClient(WiFiClient);
-
-DHT dht(DHT_PIN, DHT_TYPE)
+PubSubClient mqttClient(wifiClient); 
 
 long last_time = 0;
 char data[100];
@@ -50,7 +49,7 @@ char data[100];
 // Connect to WiFi and setup MQTT connection to the broker
 void connectToWiFi() {
     Serial.print("Connecting to ");
-    
+ 
     WiFi.begin(SSID, PWD);
     Serial.println(SSID);
     while (WiFi.status() != WL_CONNECTED) {
@@ -59,6 +58,7 @@ void connectToWiFi() {
     }
     Serial.print("Connected.");
 }
+
 
 // Callback function for receiving messages
 void callback(char* topic, byte* payload, unsigned int length) {
@@ -69,10 +69,12 @@ void callback(char* topic, byte* payload, unsigned int length) {
     }
 }
 
+
 void setupMQTT() {
-    mqttClient.setServer(mqttServer, mqttPort);
+    mqttClient.setServer(MQTT_BROKER, MQTT_PORT);
     mqttClient.setCallback(callback);
 }
+
 
 void reconnect() {
     Serial.println("Connecting to MQTT Broker...");
@@ -80,22 +82,21 @@ void reconnect() {
         Serial.println("Reconnecting to MQTT Broker..");
         String clientId = "ESP32Client-";
         clientId += String(random(0xffff), HEX);
-        
+      
         if (mqttClient.connect(clientId.c_str())) {
             Serial.println("Connected.");
-            // subscribe to topic
-            mqttClient.subscribe("/swa/commands");
-        }    
-    }
+            // Subscribe to return topic for debug purposes
+            mqttClient.subscribe("/iot/commands");
+        }      
+  }
 }
 
 
 void setup() {
-	Serial.begin(115200);
+    Serial.begin(115200);
     connectToWiFi();
     setupMQTT();
-    pinMode(WATER_POWER_PIN, OUTPUT);
-    
+    pinMode(WATER_POWER_PIN, OUTPUT);  
 }
 
 
@@ -112,34 +113,43 @@ void loop() {
     delay(10); 
     waterLevel = analogRead(WATER_SIGNAL_PIN);
     waterLevelPercentage = map(waterLevel, 0, 4096, 0, 100);
+    Serial.print("Water level percentage: ");
+    Serial.println(waterLevelPercentage);
     digitalWrite(WATER_POWER_PIN, LOW);
 
     // Moisture level sensor
     // ~ -300 (dry) to  -100 (very wet)
     moistureLevel = ( 100.00 - ( (analogRead(SOIL_MOISTURE_PIN) / 1023.00) * 100.00 ) );
-    moisturePercentage = map(moistureLevel, -300, -100, 0, 100);
+    moistureLevelPercentage = map(moistureLevel, -300, -100, 0, 100);
+    Serial.print("Moisture percentage: ");
+    Serial.println(moistureLevelPercentage);
 
     // Light level sensor
     lightLevel = analogRead(LIGHT_PIN);
+    Serial.print("Light level: ");
+    Serial.println(lightLevel);
 
     // Air temperature and humidity sensor
-    airTemperature = dht.readTemperature();
-    airHumidity = dht.readHumidity();
-
-
-    // Send MQTT messages
-    if (!mqttClient.connected()) {
+    //airTemperature = dht.readTemperature();
+    //airHumidity = dht.readHumidity();
+    Serial.println();
+    Serial.println();
+    
+    if (!mqttClient.connected())
         reconnect();
-    }    
     mqttClient.loop();
-
+  
     long now = millis();
-    if(now - last_time > 3000) {
-        int lightLevel = analogRead(LIGHT_SENSOR_PIN);
-        sprintf(data, "%d", lightLevel);
-        Serial.println(data);
-        mqttClient.publish("/swa/lightLevel", data);
+    if(now - last_time > 1000) {
+        sprintf(data, "%d", waterLevelPercentage);
+        mqttClient.publish("/iot/water", data);
 
+        sprintf(data, "%d", moistureLevelPercentage);
+        mqttClient.publish("/iot/moisture", data);
+
+        sprintf(data, "%d", lightLevel);
+        mqttClient.publish("/iot/light", data);
         last_time = now;
-    }  
+    }
+    delay(10000);
 }

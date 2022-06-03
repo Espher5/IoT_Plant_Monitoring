@@ -1,6 +1,3 @@
-
-
-
 0 - Add "video=HDMI-A-1:1920x1080@60D" to the end of cmdline.txt in the boot folder of the Rpi
 1 - Connect Rpi to hotspot
 2 - nmap -sn xxx.xxx.x.0/24 to find Rpi's IP
@@ -13,3 +10,7 @@
     listener 1883 0.0.0.0
     allow_anonymous true
 9 - Run sudo mosquitto -c mosquitto.conf inside of the mosquitto folder
+
+
+Mosquitto - subscribe to topic: mosquitto_sub -h localhost -t "mqtt/test"
+Mosquitto - publish to topic: mosquitto_pub -h localhost -t "mqtt/test" -m "Hello world"

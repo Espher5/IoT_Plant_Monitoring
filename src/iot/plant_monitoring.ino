@@ -3,6 +3,8 @@
 #include <WiFi.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
+#include <DHT.h>
+#include "arduino_secrets.h"
 
 
 // OLED display 
@@ -25,7 +27,8 @@
 
 // Light and air temperature/humidity sensors
 #define LIGHT_PIN 32
-#define DHT_PIN 
+#define DHT_PIN 33
+#define DHT_TYPE DHT11
 
 // Button
 
@@ -37,6 +40,8 @@ const int MQTT_PORT = 1883;
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(WiFiClient);
+
+DHT dht(DHT_PIN, DHT_TYPE)
 
 long last_time = 0;
 char data[100];
@@ -90,6 +95,7 @@ void setup() {
     connectToWiFi();
     setupMQTT();
     pinMode(WATER_POWER_PIN, OUTPUT);
+    
 }
 
 
@@ -97,6 +103,9 @@ void loop() {
     // Collect the sensor measurements
     int waterLevel, waterLevelPercentage;
     int moistureLevel, moistureLevelPercentage;
+    int lightLevel;
+    float airTemperature;
+    float airHumidity;
 
     // Water level sensor 
     digitalWrite(WATER_POWER_PIN, HIGH);
@@ -106,12 +115,16 @@ void loop() {
     digitalWrite(WATER_POWER_PIN, LOW);
 
     // Moisture level sensor
-    // ~ -300 (empty) to  -100 (full)
+    // ~ -300 (dry) to  -100 (very wet)
     moistureLevel = ( 100.00 - ( (analogRead(SOIL_MOISTURE_PIN) / 1023.00) * 100.00 ) );
     moisturePercentage = map(moistureLevel, -300, -100, 0, 100);
 
     // Light level sensor
+    lightLevel = analogRead(LIGHT_PIN);
 
+    // Air temperature and humidity sensor
+    airTemperature = dht.readTemperature();
+    airHumidity = dht.readHumidity();
 
 
     // Send MQTT messages

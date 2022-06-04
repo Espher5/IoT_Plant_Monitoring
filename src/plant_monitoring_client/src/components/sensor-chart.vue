@@ -67,8 +67,7 @@ export default {
                 axios.get('http://localhost:3000/api?topic=' + topic).then(response => {
                     if(!this.frozen) {
                         this.series[0].data = response.data.messages;
-                    }
-                    
+                    }                 
                     console.log(response.data.messages);
                 }).catch(err => {
                     console.log(err);

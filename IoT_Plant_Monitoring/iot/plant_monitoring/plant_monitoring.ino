@@ -3,7 +3,7 @@
 #include <WiFi.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-//#include <DHT.h>
+#include <DHT.h>
 //#include "arduino_secrets.h"
 
 
@@ -27,7 +27,7 @@
 
 // Light and air temperature/humidity sensors
 #define LIGHT_PIN 32
-#define DHT_PIN 33
+#define DHT_PIN 25
 #define DHT_TYPE DHT11
 
 // Button
@@ -44,6 +44,9 @@ PubSubClient mqttClient(wifiClient);
 
 long last_time = 0;
 char data[100];
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+DHT dht(DHT_PIN, DHT_TYPE);
 
 
 // Connect to WiFi and setup MQTT connection to the broker
@@ -97,6 +100,14 @@ void setup() {
     connectToWiFi();
     setupMQTT();
     pinMode(WATER_POWER_PIN, OUTPUT);  
+    dht.begin();
+    if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+        Serial.println("SSD1306 allocation failed");
+        for(;;); // Don't proceed, loop forever
+    }
+    display.display();
+    display.clearDisplay();
+    delay(1000);
 }
 
 
@@ -123,6 +134,11 @@ void loop() {
     moistureLevelPercentage = map(moistureLevel, -300, -100, 0, 100);
     Serial.print("Moisture percentage: ");
     Serial.println(moistureLevelPercentage);
+
+    // If the moisture level is < 20% the pump is activate
+    if(moistureLevelPercentage < 20) {
+
+    }
 
     // Light level sensor
     lightLevel = analogRead(LIGHT_PIN);

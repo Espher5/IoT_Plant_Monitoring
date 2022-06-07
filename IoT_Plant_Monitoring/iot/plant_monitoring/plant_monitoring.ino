@@ -187,9 +187,16 @@ void loop() {
     // If the moisture level is < 20% the pump is activated
     if(moistureLevelPercentage < 20) {
         Serial.println("Activating pump...");
-        digitalWrite(DIRA,HIGH);
-        digitalWrite(DIRB,LOW);
-        analogWrite(ENABLE,128);
+        digitalWrite(DIRA, HIGH);
+        digitalWrite(DIRB, LOW);
+        analogWrite(ENABLE, 128);
+        delay(500);
+        
+        Serial.println("Stopping pump...");      
+        digitalWrite(DIRA, LOW);
+        digitalWrite(DIRB, LOW);
+        digitalWrite(ENABLE, LOW);
+        delay(500);
     }
     Serial.println();
     Serial.println();

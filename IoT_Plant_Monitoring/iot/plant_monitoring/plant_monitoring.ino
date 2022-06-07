@@ -35,20 +35,29 @@
 // Button
 
 
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient); 
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+DHT dht(DHT_PIN, DHT_TYPE);
 
 const char *SSID = "IotLab";
 const char *PWD = "vmum7999";
 const char *MQTT_BROKER = "192.168.193.165";
 const int MQTT_PORT = 1883;
 
-WiFiClient wifiClient;
-PubSubClient mqttClient(wifiClient); 
+// Variables to store sensor measurements
+int waterLevel, waterLevelPercentage;
+int moistureLevel, moistureLevelPercentage;
+int lightLevel;
+int airTemperature;
+int airHumidity;
 
 long last_time = 0;
 char data[100];
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-DHT dht(DHT_PIN, DHT_TYPE);
+// Variables for display scroll speed control
+int x, minX;
 
 
 // Connect to WiFi and setup MQTT connection to the broker
@@ -97,16 +106,62 @@ void reconnect() {
 }
 
 
+void setupDisplay() {
+    if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
+        Serial.println("SSD1306 allocation failed");
+        for(;;); // Don't proceed, loop forever
+    }
+    display.setTextSize(1);
+    display.setTextColor(WHITE);
+    display.setTextWrap(false);
+
+    x = display.width();
+    minX = -12 * strlen(message);
+}
+
+
+// Updates the status information on the OLED display
+void updateDisplay() {
+    display.clearDisplay();
+    display.setCursor(0,0);
+    display.print("IoT Plant Monitoring");
+    
+    display.setCursor(x,10);
+    display.print("Soil moisture percentage: " );
+    display.print(moistureLevelPercentage);
+
+    display.setCursor(x,20); 
+    display.print("Water level percentage: ");
+    display.print(waterLevelPercentage);   
+
+    display.setCursor(x,30);
+    display.print("Light level: ");
+    display.print(lightLevel);  
+
+    display.setCursor(x,40);
+    display.print("Air temperature: ");
+    display.print(airTemperature);  
+
+    display.setCursor(x,50);
+    display.print("Air humidity: ");
+    display.print(airHumidity);  
+
+    display.display();
+    // Scroll speed, make more positive to slow down the scroll
+    x = x - 1; 
+    if(x < minX) {
+        x = display.width();
+    }
+}
+
+
 void setup() {
     Serial.begin(115200);
     connectToWiFi();
     setupMQTT();
     pinMode(WATER_POWER_PIN, OUTPUT);  
     dht.begin();
-    if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
-        Serial.println("SSD1306 allocation failed");
-        for(;;); // Don't proceed, loop forever
-    }
+    
     display.display();
     display.clearDisplay();
     delay(1000);
@@ -115,12 +170,6 @@ void setup() {
 
 void loop() {
     // Collect the sensor measurements
-    int waterLevel, waterLevelPercentage;
-    int moistureLevel, moistureLevelPercentage;
-    int lightLevel;
-    float airTemperature;
-    float airHumidity;
-
     // Water level sensor 
     digitalWrite(WATER_POWER_PIN, HIGH);
     delay(10); 
@@ -154,7 +203,7 @@ void loop() {
     Serial.println(airTemperature);
     Serial.print("Air humidity: ");
     Serial.println(airHumidity);
-    
+
     Serial.println();
     Serial.println();
     

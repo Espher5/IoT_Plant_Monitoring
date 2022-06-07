@@ -32,18 +32,10 @@
 #define DHT_PIN 25
 #define DHT_TYPE DHT11
 
-// Button
-
-
-WiFiClient wifiClient;
-PubSubClient mqttClient(wifiClient); 
-
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-DHT dht(DHT_PIN, DHT_TYPE);
 
 const char *SSID = "IotLab";
 const char *PWD = "vmum7999";
-const char *MQTT_BROKER = "192.168.193.165";
+const char *MQTT_BROKER = "192.168.112.165";
 const int MQTT_PORT = 1883;
 
 // Variables to store sensor measurements
@@ -56,21 +48,24 @@ int airHumidity;
 long last_time = 0;
 char data[100];
 
-// Variables for display scroll speed control
-int x, minX;
+WiFiClient wifiClient;
+PubSubClient mqttClient(wifiClient); 
+
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+DHT dht(DHT_PIN, DHT_TYPE);
 
 
 // Connect to WiFi and setup MQTT connection to the broker
 void connectToWiFi() {
     Serial.print("Connecting to ");
- 
+    
     WiFi.begin(SSID, PWD);
     Serial.println(SSID);
     while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
         delay(500);
     }
-    Serial.print("Connected.");
+    Serial.println("Connected.\n");
 }
 
 
@@ -96,16 +91,17 @@ void reconnect() {
         Serial.println("Reconnecting to MQTT Broker..");
         String clientId = "ESP32Client-";
         clientId += String(random(0xffff), HEX);
-      
+        
         if (mqttClient.connect(clientId.c_str())) {
             Serial.println("Connected.");
-            // Subscribe to return topic for debug purposes
+            // subscribe to topic
             mqttClient.subscribe("/iot/commands");
-        }      
-  }
+        }
+        
+    }
 }
 
-
+// Initialize OLED display settings
 void setupDisplay() {
     if(!display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS)) {
         Serial.println("SSD1306 allocation failed");
@@ -114,44 +110,36 @@ void setupDisplay() {
     display.setTextSize(1);
     display.setTextColor(WHITE);
     display.setTextWrap(false);
-
-    x = display.width();
-    minX = -12 * strlen(message);
 }
 
 
 // Updates the status information on the OLED display
 void updateDisplay() {
     display.clearDisplay();
-    display.setCursor(0,0);
+    display.setCursor(0, 0);
     display.print("IoT Plant Monitoring");
-    
-    display.setCursor(x,10);
-    display.print("Soil moisture percentage: " );
+
+    display.setCursor(0, 10);
+    display.print("Soil moisture: ");
     display.print(moistureLevelPercentage);
 
-    display.setCursor(x,20); 
-    display.print("Water level percentage: ");
-    display.print(waterLevelPercentage);   
+    display.setCursor(0, 20);
+    display.print("Water level: ");
+    display.print(waterLevelPercentage);
 
-    display.setCursor(x,30);
+    display.setCursor(0, 30);
     display.print("Light level: ");
-    display.print(lightLevel);  
+    display.print(lightLevel);
 
-    display.setCursor(x,40);
+    display.setCursor(0, 40);
     display.print("Air temperature: ");
-    display.print(airTemperature);  
+    display.print(airTemperature);
 
-    display.setCursor(x,50);
+    display.setCursor(0, 50);
     display.print("Air humidity: ");
-    display.print(airHumidity);  
-
+    display.print(airHumidity);
+    
     display.display();
-    // Scroll speed, make more positive to slow down the scroll
-    x = x - 1; 
-    if(x < minX) {
-        x = display.width();
-    }
 }
 
 
@@ -159,12 +147,10 @@ void setup() {
     Serial.begin(115200);
     connectToWiFi();
     setupMQTT();
-    pinMode(WATER_POWER_PIN, OUTPUT);  
+    pinMode(WATER_POWER_PIN, OUTPUT); 
     dht.begin();
-    
-    display.display();
-    display.clearDisplay();
-    delay(1000);
+    setupDisplay();
+    delay(1000); 
 }
 
 
@@ -186,11 +172,6 @@ void loop() {
     Serial.print("Moisture percentage: ");
     Serial.println(moistureLevelPercentage);
 
-    // If the moisture level is < 20% the pump is activate
-    if(moistureLevelPercentage < 20) {
-
-    }
-
     // Light level sensor
     lightLevel = analogRead(LIGHT_PIN);
     Serial.print("Light level: ");
@@ -203,9 +184,17 @@ void loop() {
     Serial.println(airTemperature);
     Serial.print("Air humidity: ");
     Serial.println(airHumidity);
+    // If the moisture level is < 20% the pump is activated
+    if(moistureLevelPercentage < 20) {
+        Serial.println("Activating pump...");
+        digitalWrite(DIRA,HIGH);
+        digitalWrite(DIRB,LOW);
+        analogWrite(ENABLE,128);
+    }
+    Serial.println();
+    Serial.println();
 
-    Serial.println();
-    Serial.println();
+    updateDisplay();
     
     if (!mqttClient.connected())
         reconnect();
@@ -221,6 +210,14 @@ void loop() {
 
         sprintf(data, "%d", lightLevel);
         mqttClient.publish("/iot/light", data);
+        last_time = now;
+
+        sprintf(data, "%d", airTemperature);
+        mqttClient.publish("/iot/temperature", data);
+        last_time = now;
+
+        sprintf(data, "%d", airHumidity);
+        mqttClient.publish("/iot/humidity", data);
         last_time = now;
     }
     delay(10000);

@@ -148,8 +148,13 @@ void loop() {
     Serial.println(lightLevel);
 
     // Air temperature and humidity sensor
-    //airTemperature = dht.readTemperature();
-    //airHumidity = dht.readHumidity();
+    airTemperature = dht.readTemperature();
+    airHumidity = dht.readHumidity();
+    Serial.print("Air temperature: ");
+    Serial.println(airTemperature);
+    Serial.print("Air humidity: ");
+    Serial.println(airHumidity);
+    
     Serial.println();
     Serial.println();
     

@@ -60,11 +60,15 @@ function initMQTT() {
 
     client.on('message', (topic, payload) => {
         var message = payload.toString()
-        console.log('Received message "', message, '" from topic', topic);
-      
+        console.log('Received message "', message, '" from topic', topic);     
         var controlString = processMessage(topic, message);
-        console.log(controlString);
+        if(controlString) {
+            console.log(controlString);
+
+            // Send email to the user
+        }
         topics[topic].messages.push(message);
+        
         console.log(topics[topic].messages);
     });
 }

@@ -1,10 +1,12 @@
 require('dotenv').config();
 const mqtt = require('mqtt');
+const emailHandler = require('./emailHandler');
 
 const host = process.env.MQTT_BROKER;
 const port  = process.env.MQTT_PORT;
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`;
 const connectUrl = `mqtt://${host}:${port}`;
+
 
 const client = mqtt.connect(connectUrl, {
     clientId,
@@ -64,12 +66,10 @@ function initMQTT() {
         var controlString = processMessage(topic, message);
         if(controlString) {
             console.log(controlString);
-
-            // Send email to the user
+            // Send email to the user in case of warnings
+            emailHandler.sendEmail(controlString);          
         }
         topics[topic].messages.push(message);
-        
-        console.log(topics[topic].messages);
     });
 }
 
@@ -108,10 +108,19 @@ function processMessage(topic, message) {
             }
             break;
         case '/iot/light':
+            if(message > 3000) {
+                return 'Warning, high light levels detected near the plant!';
+            }
             break;
-        case '/iot/light':
+        case '/iot/temperature':
+            if(message > 25) {
+                return 'Warning, high temperatures detected near the plant!';
+            }
             break;
-        case '/iot/light':
+        case '/iot/humidity':
+            if(message > 40) {
+                return 'Warning, high humidity levels detected near the plant!';
+            }
             break;
         default:
             return '';

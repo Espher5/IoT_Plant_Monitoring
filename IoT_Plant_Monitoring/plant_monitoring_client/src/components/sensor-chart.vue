@@ -1,11 +1,13 @@
 <template>
-    <div class="sensor-graph">      
+    <div class="sensor-chart">      
         <h2>Real-time chart for the measurements of the {{ name }} sensor</h2>
 
         <apexchart
             :type="line"
             :options="chartOptions"
-            :series="series">
+            :series="series"
+            :width="1000"
+            :height="500">
         </apexchart>
     <button ref="freezeButton" @click="freezeChart">Freeze chart</button>
     </div>
@@ -40,9 +42,29 @@ export default {
             frozen: false,
             chartOptions: {
                 chart: {
-                    id: 'vuechart'
+                    width: 1000,
+                    height: 500
                 },
-                color: '#FEB019'
+                responsive: [
+                    {
+                        breakpoint: 480,
+                        options: {
+                        chart: {
+                            width: 200,
+                        },
+                        legend: {
+                            position: "bottom",
+                        },
+                        },
+                    },
+                ],
+                colors: ['#990014'],
+                fill: {
+                    type: 'gradient'
+                },
+                stroke: {
+                    width: 10
+                }
             },
             series: [
                 {
@@ -50,13 +72,7 @@ export default {
                     data: [],
                 },
             ],
-            colors: [
-                '#008FFB',
-                '#00E396',
-                '#FEB019',
-                '#FF4560',
-                '#775DD0'
-            ]
+            
         };
     },
     
@@ -93,11 +109,15 @@ export default {
 
 
 <style scoped>
-.sensor-graph {
-    margin-bottom: 300px;
+.sensor-chart {
+    
+    margin: auto;
+    width:60%;
+    margin-bottom: 150px;
 }
 
 button {
+    width: 90%;
     flex-direction: column;
     align-items: center;
     padding: 6px 14px;

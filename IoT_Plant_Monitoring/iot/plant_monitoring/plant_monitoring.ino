@@ -6,7 +6,6 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <DHT.h>
-//#include "arduino_secrets.h"
 
 
 // OLED display 
@@ -184,6 +183,7 @@ void loop() {
     Serial.println(airTemperature);
     Serial.print("Air humidity: ");
     Serial.println(airHumidity);
+    
     // If the moisture level is < 20% the pump is activated
     if(moistureLevelPercentage < 20) {
         Serial.println("Activating pump...");

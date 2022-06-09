@@ -33,6 +33,7 @@ function sendEmail(message) {
         text: message
     }
     
+    /*
     transporter.sendMail(mailOptions, (error, info) => {
         if(error) {
             console.log(error);
@@ -40,8 +41,7 @@ function sendEmail(message) {
         }
         console.log('Email sent: ' + info.response);
     });
-    
-    console.log('Email sent');
+    */
     emailTimer = now;
 };
 

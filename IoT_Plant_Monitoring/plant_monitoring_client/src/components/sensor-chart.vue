@@ -1,6 +1,6 @@
 <template>
     <div class="sensor-chart">      
-        <h2>Real-time chart for the measurements of the {{ name }} sensor</h2>
+        <h2>Real-time line chart for the {{ name }} sensor</h2>
 
         <apexchart
             :type="line"
@@ -125,8 +125,8 @@ button {
     border-radius: 6px;
     border: none;
 
-    color: #fff;
-    background: linear-gradient(180deg, #4B91F7 0%, #367AF6 100%);
+    color: #FDFFE7;
+    background: #393A3C;
     background-origin: border-box;
     box-shadow: 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2);
     user-select: none;
@@ -135,7 +135,7 @@ button {
 }
 
 button:focus {
-  box-shadow: inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2), 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), 0px 0px 0px 3.5px rgba(58, 108, 217, 0.5);
+  box-shadow: inset 0px 0.8px 0px -0.25px rgba(255, 255, 255, 0.2), 0px 0.5px 1.5px rgba(54, 122, 246, 0.25), 0px 0px 0px 3.5px #393A3C;
   outline: 0;
 }
 </style>

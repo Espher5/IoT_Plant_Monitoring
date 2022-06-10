@@ -45,7 +45,7 @@ int airTemperature;
 int airHumidity;
 
 char data[100];
-long pumpTimer = 0;
+long pumpTimer = -60000;
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient); 
@@ -186,18 +186,22 @@ void loop() {
     
     // If the moisture level is < 20% the pump is activated
     long now = millis();
-    if(moistureLevelPercentage < 20 && now - pumpTimer > 60000) {
-        Serial.println("Activating pump...");
-        digitalWrite(DIRA, HIGH);
-        digitalWrite(DIRB, LOW);
-        analogWrite(ENABLE, 128);
-        delay(500);
-        
-        Serial.println("Stopping pump...");      
-        digitalWrite(DIRA, LOW);
-        digitalWrite(DIRB, LOW);
-        digitalWrite(ENABLE, LOW);
-        delay(500);
+    if(moistureLevelPercentage < 20) {
+        if(now - pumpTimer < 60000) {
+            Serial.println("Pump was activated a short time ago");  
+        } else {    
+            Serial.println("Activating pump...");
+            digitalWrite(DIRA, HIGH);
+            digitalWrite(DIRB, LOW);
+            analogWrite(ENABLE, 128);
+            delay(500);
+            
+            Serial.println("Stopping pump...");      
+            digitalWrite(DIRA, LOW);
+            digitalWrite(DIRB, LOW);
+            digitalWrite(ENABLE, LOW);
+            delay(500);
+        }
     }
     Serial.println();
     Serial.println();
@@ -219,7 +223,5 @@ void loop() {
     sprintf(data, "%d", airHumidity);
     mqttClient.publish("/iot/humidity", data);
 
-    last_time = now;
-    }
     delay(10000);
 }

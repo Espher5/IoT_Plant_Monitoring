@@ -18,9 +18,6 @@ function sendEmail(message) {
     // Only send email if 60 seconds have passed from previous one
     var date =  new Date();
     var now = date.getTime();
-    console.log(now);
-    console.log(emailTimer);
-    console.log(now - emailTimer);
     if(now - emailTimer < 60000) {
         console.log('Cannot send another email so soon!');
         return;

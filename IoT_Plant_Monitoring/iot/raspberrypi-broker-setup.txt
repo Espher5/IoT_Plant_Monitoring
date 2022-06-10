@@ -14,3 +14,8 @@
 
 Mosquitto - subscribe to topic: mosquitto_sub -h localhost -t "mqtt/test"
 Mosquitto - publish to topic: mosquitto_pub -h localhost -t "mqtt/test" -m "Hello world"
+
+
+IPs to change:
+- Broker IP on ESP32
+- Broker IP on NodeJS server

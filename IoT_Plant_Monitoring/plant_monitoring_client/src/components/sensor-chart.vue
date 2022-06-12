@@ -1,7 +1,8 @@
 <template>
-    <div class="sensor-chart">      
+    <div class="sensor-chart-area">      
         <h2>Real-time line chart for the {{ name }} sensor</h2>
 
+        <div class="chart">   
         <apexchart
             :type="line"
             :options="chartOptions"
@@ -9,6 +10,7 @@
             :width="1000"
             :height="500">
         </apexchart>
+        </div>
     <button ref="freezeButton" @click="freezeChart">Freeze chart</button>
     </div>
 </template>
@@ -63,7 +65,7 @@ export default {
                     type: 'gradient'
                 },
                 stroke: {
-                    width: 10
+                    width: 5
                 }
             },
             series: [
@@ -109,11 +111,15 @@ export default {
 
 
 <style scoped>
-.sensor-chart {
-    
+.sensor-chart-area { 
     margin: auto;
     width:60%;
     margin-bottom: 150px;
+}
+
+.chart {
+    margin: auto;
+    width:60%;
 }
 
 button {

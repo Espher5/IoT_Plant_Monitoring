@@ -44,8 +44,8 @@ int lightLevel;
 int airTemperature;
 int airHumidity;
 
-long last_time = 0;
 char data[100];
+long pumpTimer = -60000;
 
 WiFiClient wifiClient;
 PubSubClient mqttClient(wifiClient); 
@@ -185,18 +185,23 @@ void loop() {
     Serial.println(airHumidity);
     
     // If the moisture level is < 20% the pump is activated
+    long now = millis();
     if(moistureLevelPercentage < 20) {
-        Serial.println("Activating pump...");
-        digitalWrite(DIRA, HIGH);
-        digitalWrite(DIRB, LOW);
-        analogWrite(ENABLE, 128);
-        delay(500);
-        
-        Serial.println("Stopping pump...");      
-        digitalWrite(DIRA, LOW);
-        digitalWrite(DIRB, LOW);
-        digitalWrite(ENABLE, LOW);
-        delay(500);
+        if(now - pumpTimer < 60000) {
+            Serial.println("Pump was activated a short time ago");  
+        } else {    
+            Serial.println("Activating pump...");
+            digitalWrite(DIRA, HIGH);
+            digitalWrite(DIRB, LOW);
+            analogWrite(ENABLE, 128);
+            delay(500);
+            
+            Serial.println("Stopping pump...");      
+            digitalWrite(DIRA, LOW);
+            digitalWrite(DIRB, LOW);
+            digitalWrite(ENABLE, LOW);
+            delay(500);
+        }
     }
     Serial.println();
     Serial.println();
@@ -207,25 +212,16 @@ void loop() {
         reconnect();
     mqttClient.loop();
   
-    long now = millis();
-    if(now - last_time > 1000) {
-        sprintf(data, "%d", waterLevelPercentage);
-        mqttClient.publish("/iot/water", data);
+    sprintf(data, "%d", waterLevelPercentage);
+    mqttClient.publish("/iot/water", data);
+    sprintf(data, "%d", moistureLevelPercentage);
+    mqttClient.publish("/iot/moisture", data);
+    sprintf(data, "%d", lightLevel);
+    mqttClient.publish("/iot/light", data);
+    sprintf(data, "%d", airTemperature);
+    mqttClient.publish("/iot/temperature", data);
+    sprintf(data, "%d", airHumidity);
+    mqttClient.publish("/iot/humidity", data);
 
-        sprintf(data, "%d", moistureLevelPercentage);
-        mqttClient.publish("/iot/moisture", data);
-
-        sprintf(data, "%d", lightLevel);
-        mqttClient.publish("/iot/light", data);
-        last_time = now;
-
-        sprintf(data, "%d", airTemperature);
-        mqttClient.publish("/iot/temperature", data);
-        last_time = now;
-
-        sprintf(data, "%d", airHumidity);
-        mqttClient.publish("/iot/humidity", data);
-        last_time = now;
-    }
     delay(10000);
 }

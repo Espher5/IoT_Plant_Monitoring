@@ -64,7 +64,7 @@ void connectToWiFi() {
         Serial.print(".");
         delay(500);
     }
-    Serial.println("Connected.\n");
+    Serial.println("\nConnected.");
 }
 
 
@@ -85,14 +85,14 @@ void setupMQTT() {
 
 
 void reconnect() {
-    Serial.println("Connecting to MQTT Broker...");
+    Serial.println("Connecting to MQTT Broker");
     while (!mqttClient.connected()) {
-        Serial.println("Reconnecting to MQTT Broker..");
+        Serial.print(".");
         String clientId = "ESP32Client-";
         clientId += String(random(0xffff), HEX);
         
         if (mqttClient.connect(clientId.c_str())) {
-            Serial.println("Connected.");
+            Serial.println("\nConnected.\n");
             // subscribe to topic
             mqttClient.subscribe("/iot/commands");
         }
@@ -142,18 +142,26 @@ void updateDisplay() {
 }
 
 
-void setup() {
+void setup() { 
     Serial.begin(115200);
     connectToWiFi();
     setupMQTT();
-    pinMode(WATER_POWER_PIN, OUTPUT); 
-    dht.begin();
     setupDisplay();
+    dht.begin();
+    pinMode(WATER_POWER_PIN, OUTPUT); 
+    pinMode(ENABLE,OUTPUT);
+    pinMode(DIRA,OUTPUT);
+    pinMode(DIRB,OUTPUT); 
     delay(1000); 
+    
 }
 
 
 void loop() {
+    if (!mqttClient.connected())
+        reconnect();
+    mqttClient.loop();
+    
     // Collect the sensor measurements
     // Water level sensor 
     digitalWrite(WATER_POWER_PIN, HIGH);
@@ -165,9 +173,9 @@ void loop() {
     digitalWrite(WATER_POWER_PIN, LOW);
 
     // Moisture level sensor
-    // ~ -300 (dry) to  -100 (very wet)
+    // ~ -300 (dry) to  50 (very wet)
     moistureLevel = ( 100.00 - ( (analogRead(SOIL_MOISTURE_PIN) / 1023.00) * 100.00 ) );
-    moistureLevelPercentage = map(moistureLevel, -300, -100, 0, 100);
+    moistureLevelPercentage = map(moistureLevel, -300, 50, 0, 100);
     Serial.print("Moisture percentage: ");
     Serial.println(moistureLevelPercentage);
 
@@ -186,32 +194,32 @@ void loop() {
     
     // If the moisture level is < 20% the pump is activated
     long now = millis();
-    if(moistureLevelPercentage < 20) {
+    Serial.println(now);
+    Serial.println(pumpTimer);
+    Serial.println(now - pumpTimer);
+    if(moistureLevelPercentage < 100) {
         if(now - pumpTimer < 60000) {
-            Serial.println("Pump was activated a short time ago");  
+            Serial.println("Pump was activated a short time ago.");  
         } else {    
             Serial.println("Activating pump...");
+            analogWrite(ENABLE, 255);
             digitalWrite(DIRA, HIGH);
             digitalWrite(DIRB, LOW);
-            analogWrite(ENABLE, 128);
-            delay(500);
+            delay(5000);
             
             Serial.println("Stopping pump...");      
             digitalWrite(DIRA, LOW);
-            digitalWrite(DIRB, LOW);
             digitalWrite(ENABLE, LOW);
             delay(500);
-        }
+
+            pumpTimer = now;
+        }    
     }
-    Serial.println();
-    Serial.println();
+    Serial.println("\n");
 
     updateDisplay();
-    
-    if (!mqttClient.connected())
-        reconnect();
-    mqttClient.loop();
-  
+
+    Serial.println("Sending MQTT messages...");
     sprintf(data, "%d", waterLevelPercentage);
     mqttClient.publish("/iot/water", data);
     sprintf(data, "%d", moistureLevelPercentage);
@@ -222,6 +230,7 @@ void loop() {
     mqttClient.publish("/iot/temperature", data);
     sprintf(data, "%d", airHumidity);
     mqttClient.publish("/iot/humidity", data);
+    Serial.println("All messages sent.\n\n");
 
     delay(10000);
 }

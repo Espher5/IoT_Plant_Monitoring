@@ -194,9 +194,6 @@ void loop() {
     
     // If the moisture level is < 20% the pump is activated
     long now = millis();
-    Serial.println(now);
-    Serial.println(pumpTimer);
-    Serial.println(now - pumpTimer);
     if(moistureLevelPercentage < 100) {
         if(now - pumpTimer < 60000) {
             Serial.println("Pump was activated a short time ago.");  
